@@ -1,2 +1,4 @@
+.gitignore
 .vscode/*
 src/cmd/AvWxTelegramBot/config.env
+src/cmd/AvWxTelegramBot/error.log

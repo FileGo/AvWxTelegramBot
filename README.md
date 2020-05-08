@@ -2,4 +2,13 @@
 
 This projects creats a [Telegram](https://telegram.org/) bot, written in Go that receives one or multiple airport identifiers (4-letter ICAO or 3-letter IATA), separated by comma or space and returns current (METAR) and forecasted weather (TAF) for the requested airports.
 
-It uses NOAA Aviation Weather Center's [Text Data Server](https://www.aviationweather.gov/dataserver) to retrieve data.
+It uses NOAA Aviation Weather Center's [Text Data Server](https://www.aviationweather.gov/dataserver) to retrieve data. Requests require ICAO airport code.
+
+It requires a MySQL/MariaDB database with a table of airports with IATA and ICAO codes. Good start is [OpenFlights](https://openflights.org/data.html#airport), but it would need to be imported from the CSV file they provide.
+
+In order to make use of Telegram, a bot needs to be [created](https://core.telegram.org/bots#6-botfather) and token inserted into config.env file.
+
+Project makes use of the following libraries:
+* https://github.com/joho/godotenv (parsing the config file)
+* https://github.com/yanzay/tbot (Go library for Telegram Bot)
+* https://github.com/go-sql-driver/mysql (MySQL driver)

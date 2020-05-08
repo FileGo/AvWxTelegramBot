@@ -1,4 +1,4 @@
-module AvWxTelegramBot
+module github.com/FileGo/AvWxTelegramBot
 
 go 1.14
 

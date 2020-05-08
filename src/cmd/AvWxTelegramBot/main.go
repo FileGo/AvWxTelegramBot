@@ -14,7 +14,8 @@ import (
 )
 
 // GetICAOs returns array of ICAO codes from a message string
-func GetICAOs(input string) []string {
+func GetICAOs(input string) (output []string) {
+	output = []string{}
 	var airports []string
 
 	// Trim input first
@@ -33,8 +34,6 @@ func GetICAOs(input string) []string {
 		airports = append(airports, input)
 	}
 
-	output := []string{}
-
 	// Trim results and make it uppercase
 	for _, airport := range airports {
 		str := strings.ToUpper(strings.TrimSpace(airport))
@@ -45,14 +44,14 @@ func GetICAOs(input string) []string {
 		}
 	}
 
-	return output
+	return
 }
 
 func main() {
 	// Initialize .env file
 	err := godotenv.Load("config.env")
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	// Check if error log file is set
@@ -61,7 +60,7 @@ func main() {
 		f, err := os.OpenFile(os.Getenv("log_file"), os.O_RDWR|os.O_CREATE|os.O_APPEND, 0664)
 
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 
 		defer f.Close()
@@ -104,7 +103,7 @@ func main() {
 
 		var messages []string
 
-		// Check for space separator
+		// Get airports from received message
 		airports := GetICAOs(m.Text)
 
 		if len(airports) > 0 {
@@ -169,6 +168,7 @@ func main() {
 
 			}
 
+			// Send messages once we have all data
 			for _, message := range messages {
 				c.SendMessage(m.Chat.ID, message, tbot.OptParseModeMarkdown)
 			}
@@ -181,6 +181,6 @@ func main() {
 	err = bot.Start()
 
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 }
