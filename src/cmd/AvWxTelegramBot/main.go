@@ -160,7 +160,7 @@ func main() {
 						taf := <-tafCh
 						metar := <-metarCh
 
-						message := fmt.Sprintf("*%s/%s*\n*METAR*\n%s\n*TAF*\n%s", strings.ToUpper(icao), strings.ToUpper(iata), metar, taf)
+						message := fmt.Sprintf("<b>%s/%s\nMETAR</b>\n<code>%s</code>\n<b>TAF</b>\n<code>%s</code>", strings.ToUpper(icao), strings.ToUpper(iata), metar, taf)
 						messages = append(messages, message)
 					}
 				}(airport, &wgMain)
@@ -170,7 +170,8 @@ func main() {
 
 			// Send messages once we have all data
 			for _, message := range messages {
-				c.SendMessage(m.Chat.ID, message, tbot.OptParseModeMarkdown)
+				// we need HTML parse mode to enable <code>, which disables displaying numbers as URLs on mobile devices
+				c.SendMessage(m.Chat.ID, message, tbot.OptParseModeHTML)
 			}
 		} else {
 			c.SendMessage(m.Chat.ID,
