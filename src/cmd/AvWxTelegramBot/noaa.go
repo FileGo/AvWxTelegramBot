@@ -115,7 +115,7 @@ type NOAAResponseTaf struct {
 func GetMetarNOAA(ICAO string, metar chan string, wg *sync.WaitGroup) {
 	defer wg.Done()
 	// Retrieve XML from NOAA
-	response, err := http.Get("https://aviationweather.gov/adds/dataserver_current/httpparam?dataSource=metars&requestType=retrieve&format=xml&stationString=" + ICAO + "&hoursBeforeNow=" + os.Getenv("NOAAhours"))
+	response, err := http.Get("https://aviationweather.gov/adds/dataserver_current/httpparam?dataSource=metars&requestType=retrieve&format=xml&stationString=" + ICAO + "&hoursBeforeNow=" + os.Getenv("noaa_hrs"))
 
 	if err != nil {
 		metar <- ""
@@ -146,7 +146,7 @@ func GetMetarNOAA(ICAO string, metar chan string, wg *sync.WaitGroup) {
 func GetTafNOAA(ICAO string, taf chan string, wg *sync.WaitGroup) {
 	defer wg.Done()
 	// Retrieve XML from NOAA
-	response, err := http.Get("https://aviationweather.gov/adds/dataserver_current/httpparam?dataSource=tafs&requestType=retrieve&format=xml&stationString=" + ICAO + "&hoursBeforeNow=" + os.Getenv("NOAAhours"))
+	response, err := http.Get("https://aviationweather.gov/adds/dataserver_current/httpparam?dataSource=tafs&requestType=retrieve&format=xml&stationString=" + ICAO + "&hoursBeforeNow=" + os.Getenv("noaa_hrs"))
 
 	if err != nil {
 		panic(err)

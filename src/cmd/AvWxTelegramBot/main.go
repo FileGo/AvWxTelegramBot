@@ -8,7 +8,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/joho/godotenv"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/yanzay/tbot/v2"
 )
@@ -48,16 +47,10 @@ func GetICAOs(input string) (output []string) {
 }
 
 func main() {
-	// Initialize .env file
-	err := godotenv.Load("config.env")
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	// Check if error log file is set
-	if os.Getenv("log_file") != "" {
+	if os.Getenv("logfile") != "" {
 		// Open log file
-		f, err := os.OpenFile(os.Getenv("log_file"), os.O_RDWR|os.O_CREATE|os.O_APPEND, 0664)
+		f, err := os.OpenFile(os.Getenv("logfile"), os.O_RDWR|os.O_CREATE|os.O_APPEND, 0664)
 
 		if err != nil {
 			log.Fatal(err)
@@ -73,7 +66,7 @@ func main() {
 	}
 
 	// Open MySQL connection
-	dbDSN := fmt.Sprintf("file:%s?mode=ro", os.Getenv("db_file"))
+	dbDSN := fmt.Sprintf("file:%s?mode=ro", os.Getenv("dbfile"))
 	db, err := sql.Open("sqlite3", dbDSN)
 	if err != nil {
 		log.Fatal(err)
@@ -82,7 +75,7 @@ func main() {
 	defer db.Close()
 
 	// Start Telegram bot
-	bot := tbot.New(os.Getenv("TelegramToken"))
+	bot := tbot.New(os.Getenv("telegram_token"))
 	c := bot.Client()
 
 	// Start message

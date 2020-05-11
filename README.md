@@ -6,9 +6,13 @@ It uses NOAA Aviation Weather Center's [Text Data Server](https://www.aviationwe
 
 It also provides a SQLite3 database (airports.db3), which has been created with data from[OpenFlights](https://openflights.org/data.html#airport). It stores a large majority of worldwide airports and it is used to lookup ICAO and IATA codes as required.
 
-In order to make use of Telegram, a bot needs to be [created](https://core.telegram.org/bots#6-botfather) and token inserted into config.env file.
+In order to make use of Telegram, a bot needs to be [created](https://core.telegram.org/bots#6-botfather) and token inserted into Dockerfile.
+
+Usage:
+    $ docker build -t avwxtelegrambot .
+    $ docker start --name avwxtelegrambot avwxtelegrambot
 
 Project makes use of the following libraries:
-* https://github.com/joho/godotenv (parsing the config file)
+
 * https://github.com/yanzay/tbot (Go library for Telegram Bot)
 * https://github.com/mattn/go-sqlite3 (SQLite3 driver)
