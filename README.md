@@ -9,8 +9,10 @@ It also provides a SQLite3 database (airports.db3), which has been created with 
 In order to make use of Telegram, a bot needs to be [created](https://core.telegram.org/bots#6-botfather) and token inserted into Dockerfile.
 
 Usage:
-    $ docker build -t avwxtelegrambot .
-    $ docker start --name avwxtelegrambot avwxtelegrambot
+
+`$ docker build -t avwxtelegrambot .`
+
+`$ docker start --name avwxtelegrambot avwxtelegrambot`
 
 Project makes use of the following libraries:
 
