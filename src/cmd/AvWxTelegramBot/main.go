@@ -8,8 +8,8 @@ import (
 	"strings"
 	"sync"
 
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/yanzay/tbot/v2"
 )
 
@@ -73,8 +73,8 @@ func main() {
 	}
 
 	// Open MySQL connection
-	dbDSN := fmt.Sprintf("%s:%s@tcp(%s)/%s?parseTime=true", os.Getenv("db_user"), os.Getenv("db_pass"), os.Getenv("db_host"), os.Getenv("db_schema"))
-	db, err := sql.Open("mysql", dbDSN)
+	dbDSN := fmt.Sprintf("file:%s?mode=ro", os.Getenv("db_file"))
+	db, err := sql.Open("sqlite3", dbDSN)
 	if err != nil {
 		log.Fatal(err)
 	}
