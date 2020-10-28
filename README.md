@@ -2,17 +2,42 @@
 
 This projects creats a [Telegram](https://telegram.org/) bot, written in Go that receives one or multiple airport identifiers (4-letter ICAO or 3-letter IATA), separated by comma or space and returns current (METAR) and forecasted weather (TAF) for the requested airports.
 
-It uses NOAA Aviation Weather Center's [Text Data Server](https://www.aviationweather.gov/dataserver) to retrieve data. Requests require ICAO airport code.
+It uses NOAA Aviation Weather Center's [Text Data Server](https://www.aviationweather.gov/dataserver) to retrieve data. Requests require ICAO airport code. Default interval for METAR/TAF is 12 hours, but can be overriden by providing NOAA_INTERVAL environmental variable.
 
 It also provides a SQLite3 database (airports.db3), which has been created with data from [OpenFlights](https://openflights.org/data.html#airport). It stores a large majority of worldwide airports and it is used to lookup ICAO and IATA codes as required.
 
-In order to make use of Telegram, a bot needs to be [created](https://core.telegram.org/bots#6-botfather) and token inserted into Dockerfile.
+In order to make use of Telegram, a bot needs to be [created](https://core.telegram.org/bots#6-botfather) and token passed as an environmental variable.
+
+## CLI
+Can be run as a CLI program:
+```
+$ TELEGRAM_TOKEN={insert Telegram bot token} ./AvWxTelegramBot
+```
+
+## Docker
+Easier way to run it is as a Docker container through docker-compose. An example of `docker-compose.yml` file:
+
+```
+---
+version: "3.4"
+services:
+    avwxtelegrambot:
+        container_name: avwxtelegrambot
+        image: avwxtelegrambot:latest
+        build: .
+        environment: 
+            - TELEGRAM_TOKEN=insert_telegram_bot_token
+            - NOAA_INTERVAL=12 # optional
+        restart: unless-stopped
+```
 
 Usage:
+```
+$ git clone https://github.com/FileGo/AvWxTelegramBot.git
+$ cd AvWxTelegramBot
+$ docker-compose up -d
+```
 
-`$ docker build -t avwxtelegrambot .`
-
-`$ docker start --name avwxtelegrambot avwxtelegrambot`
 
 Project makes use of the following libraries:
 

@@ -5,12 +5,15 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 	"sync"
 
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/yanzay/tbot/v2"
 )
+
+const dbPath = "airports.db3"
 
 // GetICAOs returns array of ICAO codes from a message string
 func GetICAOs(input string) (output []string) {
@@ -47,35 +50,42 @@ func GetICAOs(input string) (output []string) {
 }
 
 func main() {
-	// Check if error log file is set
-	if os.Getenv("logfile") != "" {
-		// Open log file
-		f, err := os.OpenFile(os.Getenv("logfile"), os.O_RDWR|os.O_CREATE|os.O_APPEND, 0664)
-
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		defer f.Close()
-
-		// Set log to output
-		log.SetOutput(f)
-
-		// Log that program was started
-		log.Println("Program started")
+	// Check that DB file exists and is readable
+	_, err := os.Stat(dbPath)
+	if os.IsNotExist(err) {
+		log.Fatalf("%s does not exist.\n", dbPath)
 	}
 
-	// Open MySQL connection
-	dbDSN := fmt.Sprintf("file:%s?mode=ro", os.Getenv("dbfile"))
+	if os.IsPermission(err) {
+		log.Fatalf("Unable to read from %s.\n", dbPath)
+	}
+
+	// Open SQLite connection
+	dbDSN := fmt.Sprintf("file:%s?mode=ro", dbPath)
 	db, err := sql.Open("sqlite3", dbDSN)
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	defer db.Close()
 
+	// Set default NOAA interval if not set
+	var NOAAinterval int
+	if os.Getenv("NOAA_INTERVAL") == "" {
+		NOAAinterval = 12
+	} else {
+		NOAAinterval, err = strconv.Atoi(os.Getenv("NOAA_INTERVAL"))
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	// Fail if TELEGRAM_TOKEN is not set
+	if os.Getenv("TELEGRAM_TOKEN") == "" {
+		log.Fatal("TELEGRAM_TOKEN not set. Unable to start the bot.")
+	}
+
 	// Start Telegram bot
-	bot := tbot.New(os.Getenv("telegram_token"))
+	bot := tbot.New(os.Getenv("TELEGRAM_TOKEN"))
 	c := bot.Client()
 
 	// Start message
@@ -84,10 +94,11 @@ func main() {
 	})
 
 	// Handle /help
-	// TODO
 	bot.HandleMessage("/help", func(m *tbot.Message) {
 		c.SendMessage(m.Chat.ID,
-			"This bot quickly retrieves METAR and TAF for multiple airports.\nTo use it, simply type one or more IATA or ICAO airport codes seperated by either a space or a comma, e.g.\nKLAX JFK LHR or KLAX,JFK,LHR")
+			`This bot quickly retrieves METAR and TAF for multiple airports.
+To use it, simply type one or more IATA or ICAO airport codes seperated by either a space or a comma, e.g.
+KLAX JFK LHR or KLAX,JFK,LHR`)
 	})
 
 	bot.HandleMessage(".*", func(m *tbot.Message) {
@@ -146,8 +157,8 @@ func main() {
 						metarCh := make(chan string, 1)
 
 						wg.Add(2)
-						go GetTafNOAA(icao, tafCh, &wg)
-						go GetMetarNOAA(icao, metarCh, &wg)
+						go GetTafNOAA(icao, tafCh, NOAAinterval, &wg)
+						go GetMetarNOAA(icao, metarCh, NOAAinterval, &wg)
 
 						wg.Wait()
 						taf := <-tafCh

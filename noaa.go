@@ -2,9 +2,9 @@ package main
 
 import (
 	"encoding/xml"
+	"fmt"
 	"io/ioutil"
 	"net/http"
-	"os"
 	"sync"
 )
 
@@ -112,19 +112,21 @@ type NOAAResponseTaf struct {
 }
 
 // GetMetarNOAA retrieves raw text of latest METAR from NOAA
-func GetMetarNOAA(ICAO string, metar chan string, wg *sync.WaitGroup) {
+func GetMetarNOAA(ICAO string, metar chan string, NOAAinterval int, wg *sync.WaitGroup) {
 	defer wg.Done()
 	// Retrieve XML from NOAA
-	response, err := http.Get("https://aviationweather.gov/adds/dataserver_current/httpparam?dataSource=metars&requestType=retrieve&format=xml&stationString=" + ICAO + "&hoursBeforeNow=" + os.Getenv("noaa_hrs"))
+	response, err := http.Get(fmt.Sprintf("https://aviationweather.gov/adds/dataserver_current/httpparam?dataSource=metars&requestType=retrieve&format=xml&stationString=%s&hoursBeforeNow=%d", ICAO, NOAAinterval))
 
 	if err != nil {
 		metar <- ""
+		return
 	}
 
 	data, err := ioutil.ReadAll(response.Body)
 
 	if err != nil {
 		metar <- ""
+		return
 	}
 
 	nresp := &NOAAResponseMetar{}
@@ -143,10 +145,10 @@ func GetMetarNOAA(ICAO string, metar chan string, wg *sync.WaitGroup) {
 }
 
 // GetTafNOAA retrieves raw text of latest METAR from NOAA
-func GetTafNOAA(ICAO string, taf chan string, wg *sync.WaitGroup) {
+func GetTafNOAA(ICAO string, taf chan string, NOAAinterval int, wg *sync.WaitGroup) {
 	defer wg.Done()
 	// Retrieve XML from NOAA
-	response, err := http.Get("https://aviationweather.gov/adds/dataserver_current/httpparam?dataSource=tafs&requestType=retrieve&format=xml&stationString=" + ICAO + "&hoursBeforeNow=" + os.Getenv("noaa_hrs"))
+	response, err := http.Get(fmt.Sprintf("https://aviationweather.gov/adds/dataserver_current/httpparam?dataSource=tafs&requestType=retrieve&format=xml&stationString=%s&hoursBeforeNow=%d", ICAO, NOAAinterval))
 
 	if err != nil {
 		panic(err)
