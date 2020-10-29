@@ -6,7 +6,7 @@ It uses NOAA Aviation Weather Center's [Text Data Server](https://www.aviationwe
 
 It also provides a SQLite3 database (airports.db3), which has been created with data from [OpenFlights](https://openflights.org/data.html#airport). It stores a large majority of worldwide airports and it is used to lookup ICAO and IATA codes as required.
 
-In order to make use of Telegram, a bot needs to be [created](https://core.telegram.org/bots#6-botfather) and token passed as an environmental variable.
+In order to make use of Telegram, a bot needs to be [created](https://core.telegram.org/bots#6-botfather) and token passed as an environmental variable. By default it uses the *updates* method of retrieving requests, however if both WEBHOOK_URL and WEBHOOK_PORT environmental variables are set, it will utilise the webhook.
 
 ## CLI
 Can be run as a CLI program:
@@ -27,7 +27,9 @@ services:
         build: .
         environment: 
             - TELEGRAM_TOKEN=insert_telegram_bot_token
-            - NOAA_INTERVAL=12 # optional
+            - NOAA_INTERVAL=12                  # optional
+            - WEBHOOK_URL=https://my.server.com # optional
+            - WEBHOOK_PORT=443                  # optional
         restart: unless-stopped
 ```
 

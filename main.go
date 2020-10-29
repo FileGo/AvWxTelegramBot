@@ -84,8 +84,16 @@ func main() {
 		log.Fatal("TELEGRAM_TOKEN not set. Unable to start the bot.")
 	}
 
-	// Start Telegram bot
-	bot := tbot.New(os.Getenv("TELEGRAM_TOKEN"))
+	// Check if using webhook or not
+	var bot *tbot.Server
+	if os.Getenv("WEBHOOK_URL") != "" && os.Getenv("WEBHOOK_PORT") != "" {
+		bot = tbot.New(os.Getenv("TELEGRAM_TOKEN"),
+			tbot.WithWebhook(os.Getenv("WEBHOOK_URL"), fmt.Sprintf(":%s", os.Getenv("WEBHOOK_PORT"))))
+		fmt.Printf("Starting the bot with webhook: %s:%s\n", os.Getenv("WEBHOOK_URL"), os.Getenv("WEBHOOK_PORT"))
+	} else {
+		bot = tbot.New(os.Getenv("TELEGRAM_TOKEN"))
+		fmt.Println("Starting the bot with the updates method")
+	}
 	c := bot.Client()
 
 	// Start message
@@ -183,9 +191,5 @@ KLAX JFK LHR or KLAX,JFK,LHR`)
 		}
 	})
 
-	err = bot.Start()
-
-	if err != nil {
-		log.Fatal(err)
-	}
+	log.Fatal(bot.Start())
 }
