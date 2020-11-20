@@ -1,22 +1,24 @@
 package main
 
 import (
-	"database/sql"
+	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"log"
 	"os"
 	"strconv"
 	"strings"
 	"sync"
 
-	_ "github.com/mattn/go-sqlite3"
 	"github.com/yanzay/tbot/v2"
 )
 
-const dbPath = "airports.db3"
+const dbPath = "airports.json"
 
-// GetICAOs returns array of ICAO codes from a message string
-func GetICAOs(input string) (output []string) {
+// GetAirportCodes returns array of ICAO codes from a message string
+func GetAirportCodes(input string) (output []string) {
 	output = []string{}
 	var airports []string
 
@@ -49,34 +51,91 @@ func GetICAOs(input string) (output []string) {
 	return
 }
 
+// Airport represents an airport entry
+type Airport struct {
+	ICAO string
+	IATA string
+	Name string
+}
+
+// Env stores global variables
+type Env struct {
+	Airports []Airport
+}
+
+// FindAirport returns an airport
+func (env *Env) FindAirport(code string) (Airport, error) {
+	if len(code) == 4 { // ICAO
+		for i := range env.Airports {
+			if env.Airports[i].ICAO == code {
+				return env.Airports[i], nil
+			}
+		}
+	} else if len(code) == 3 { // IATA
+		for i := range env.Airports {
+			if env.Airports[i].IATA == code {
+				return env.Airports[i], nil
+			}
+		}
+	} else {
+		return Airport{}, errors.New("airport code should be in IATA (3 letters) or ICAO (4 letters) form")
+	}
+
+	return Airport{}, errors.New("no airport found")
+}
+
+// LoadAirports Loads the airports into memory
+func (env *Env) LoadAirports(r io.Reader) error {
+	buf, err := ioutil.ReadAll(r)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(buf, &env.Airports)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// GetNOAAinterval retrieves interval for checking the METER/TAF data
+func GetNOAAinterval() (int, error) {
+	if os.Getenv("NOAA_INTERVAL") == "" {
+		return 12, nil
+	}
+
+	NOAAinterval, err := strconv.Atoi(os.Getenv("NOAA_INTERVAL"))
+	if err != nil {
+		return 0, err
+	}
+
+	// Return error for non-positive interval
+	if NOAAinterval <= 0 {
+		return 0, errors.New("interval should be a positive number")
+	}
+
+	return int(NOAAinterval), nil
+}
+
 func main() {
 	// Check that DB file exists and is readable
-	_, err := os.Stat(dbPath)
-	if os.IsNotExist(err) {
-		log.Fatalf("%s does not exist.\n", dbPath)
-	}
-
-	if os.IsPermission(err) {
-		log.Fatalf("Unable to read from %s.\n", dbPath)
-	}
-
-	// Open SQLite connection
-	dbDSN := fmt.Sprintf("file:%s?mode=ro", dbPath)
-	db, err := sql.Open("sqlite3", dbDSN)
+	f, err := os.Open(dbPath)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("unable to open %s: %v\n", dbPath, err)
 	}
-	defer db.Close()
+	defer f.Close()
+
+	env := Env{}
+	err = env.LoadAirports(f)
+	if err != nil {
+		log.Fatalf("unable to load airports: %v", err)
+	}
 
 	// Set default NOAA interval if not set
-	var NOAAinterval int
-	if os.Getenv("NOAA_INTERVAL") == "" {
-		NOAAinterval = 12
-	} else {
-		NOAAinterval, err = strconv.Atoi(os.Getenv("NOAA_INTERVAL"))
-		if err != nil {
-			log.Fatal(err)
-		}
+	NOAAinterval, err := GetNOAAinterval()
+	if err != nil {
+		log.Fatalf("unable to read NOAA interval: %v", err)
 	}
 
 	// Fail if TELEGRAM_TOKEN is not set
@@ -96,17 +155,24 @@ func main() {
 	}
 	c := bot.Client()
 
-	// Start message
+	// Handle / messages
 	bot.HandleMessage("/start", func(m *tbot.Message) {
-		c.SendMessage(m.Chat.ID, "Welcome to METAR/TAF bot!")
-	})
-
-	// Handle /help
-	bot.HandleMessage("/help", func(m *tbot.Message) {
-		c.SendMessage(m.Chat.ID,
-			`This bot quickly retrieves METAR and TAF for multiple airports.
+		switch strings.TrimLeft(m.Text, "/") {
+		case "start":
+			c.SendMessage(m.Chat.ID, "Welcome to METAR/TAF bot!")
+		case "help":
+			c.SendMessage(m.Chat.ID,
+				`This bot quickly retrieves METAR and TAF for multiple airports.
 To use it, simply type one or more IATA or ICAO airport codes seperated by either a space or a comma, e.g.
 KLAX JFK LHR or KLAX,JFK,LHR`)
+		case "?":
+			c.SendMessage(m.Chat.ID,
+				`Available commands:
+/start
+/help`)
+		default:
+			c.SendMessage(m.Chat.ID, fmt.Sprintf("Unknown command: %s", m.Text))
+		}
 	})
 
 	bot.HandleMessage(".*", func(m *tbot.Message) {
@@ -116,44 +182,20 @@ KLAX JFK LHR or KLAX,JFK,LHR`)
 		var messages []string
 
 		// Get airports from received message
-		airports := GetICAOs(m.Text)
+		airports := GetAirportCodes(m.Text)
 
 		if len(airports) > 0 {
 			var wgMain sync.WaitGroup
 			for _, airport := range airports {
 
 				wgMain.Add(1)
-				go func(arpt string, wgMain *sync.WaitGroup) {
+				go func(code string, wgMain *sync.WaitGroup) {
 					defer wgMain.Done()
-					var icao string
-					var iata string
 					success := true
 
-					if len(arpt) == 4 {
-						// ICAO
-						icao = arpt
-
-						// Get IATA code from MYSQL
-						row := db.QueryRow("SELECT iata_code FROM airports WHERE ident=?", arpt)
-						switch err := row.Scan(&iata); err {
-						case sql.ErrNoRows:
-							iata = ""
-						default:
-						}
-					} else if len(arpt) == 3 {
-						// IATA code
-						iata = arpt
-
-						// Get ICAO code from MYSQL
-						row := db.QueryRow("SELECT ident FROM airports WHERE iata_code=?", arpt)
-						switch err := row.Scan(&icao); err {
-						case sql.ErrNoRows:
-							iata = ""
-						default:
-
-						}
-					} else {
-						message := fmt.Sprintf("Airport %s not found.", arpt)
+					arpt, err := env.FindAirport(code)
+					if err != nil {
+						message := fmt.Sprintf("Airport %s not found.", code)
 						messages = append(messages, message)
 						success = false
 					}
@@ -165,14 +207,14 @@ KLAX JFK LHR or KLAX,JFK,LHR`)
 						metarCh := make(chan string, 1)
 
 						wg.Add(2)
-						go GetTafNOAA(icao, tafCh, NOAAinterval, &wg)
-						go GetMetarNOAA(icao, metarCh, NOAAinterval, &wg)
+						go GetTafNOAA(arpt.ICAO, tafCh, NOAAinterval, &wg)
+						go GetMetarNOAA(arpt.ICAO, metarCh, NOAAinterval, &wg)
 
 						wg.Wait()
 						taf := <-tafCh
 						metar := <-metarCh
 
-						message := fmt.Sprintf("<b>%s/%s\nMETAR</b>\n<code>%s</code>\n<b>TAF</b>\n<code>%s</code>", strings.ToUpper(icao), strings.ToUpper(iata), metar, taf)
+						message := fmt.Sprintf("<b>%s/%s\nMETAR</b>\n<code>%s</code>\n<b>TAF</b>\n<code>%s</code>", strings.ToUpper(arpt.ICAO), strings.ToUpper(arpt.IATA), metar, taf)
 						messages = append(messages, message)
 					}
 				}(airport, &wgMain)
