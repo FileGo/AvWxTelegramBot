@@ -151,7 +151,7 @@ func main() {
 		fmt.Printf("Starting the bot with webhook: %s:%s\n", os.Getenv("WEBHOOK_URL"), os.Getenv("WEBHOOK_PORT"))
 	} else {
 		bot = tbot.New(os.Getenv("TELEGRAM_TOKEN"))
-		fmt.Println("Starting the bot with the updates method")
+		log.Println("Starting the bot with the updates method")
 	}
 	c := bot.Client()
 
