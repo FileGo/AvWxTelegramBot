@@ -1,9 +1,10 @@
-FROM golang:alpine
-RUN apk update && apk upgrade && \
-    apk add --no-cache gcc libc-dev git bash
+FROM golang AS build-env
 WORKDIR /app
-COPY go.mod go.sum ./
-COPY . .
-RUN go get -u
-RUN go build .
-CMD ["./AvWxTelegramBot"] 
+ADD . /app/
+RUN go get -d -v ./...
+RUN go build -o /go/bin/app
+
+FROM gcr.io/distroless/base
+COPY --from=build-env /go/bin/app /
+COPY --from=build-env /app/airports.json /airports.json
+CMD ["/app"] 
