@@ -7,10 +7,12 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/yanzay/tbot/v2"
 )
@@ -60,7 +62,9 @@ type Airport struct {
 
 // Env stores global variables
 type Env struct {
-	Airports []Airport
+	Airports     []Airport
+	httpClient   *http.Client
+	NOAAinterval int
 }
 
 // FindAirport returns an airport
@@ -100,22 +104,24 @@ func (env *Env) LoadAirports(r io.Reader) error {
 }
 
 // GetNOAAinterval retrieves interval for checking the METER/TAF data
-func GetNOAAinterval() (int, error) {
+func (env *Env) GetNOAAinterval() error {
 	if os.Getenv("NOAA_INTERVAL") == "" {
-		return 12, nil
+		env.NOAAinterval = 12
+		return nil
 	}
 
-	NOAAinterval, err := strconv.Atoi(os.Getenv("NOAA_INTERVAL"))
+	var err error
+	env.NOAAinterval, err = strconv.Atoi(os.Getenv("NOAA_INTERVAL"))
 	if err != nil {
-		return 0, err
+		return err
 	}
 
 	// Return error for non-positive interval
-	if NOAAinterval <= 0 {
-		return 0, errors.New("interval should be a positive number")
+	if env.NOAAinterval <= 0 {
+		return errors.New("interval should be a positive number")
 	}
 
-	return int(NOAAinterval), nil
+	return nil
 }
 
 func main() {
@@ -133,7 +139,7 @@ func main() {
 	}
 
 	// Set default NOAA interval if not set
-	NOAAinterval, err := GetNOAAinterval()
+	err = env.GetNOAAinterval()
 	if err != nil {
 		log.Fatalf("unable to read NOAA interval: %v", err)
 	}
@@ -141,6 +147,11 @@ func main() {
 	// Fail if TELEGRAM_TOKEN is not set
 	if os.Getenv("TELEGRAM_TOKEN") == "" {
 		log.Fatal("TELEGRAM_TOKEN not set. Unable to start the bot.")
+	}
+
+	// Set httpClient
+	env.httpClient = &http.Client{
+		Timeout: 10 * time.Second,
 	}
 
 	// Check if using webhook or not
@@ -151,7 +162,7 @@ func main() {
 		fmt.Printf("Starting the bot with webhook: %s:%s\n", os.Getenv("WEBHOOK_URL"), os.Getenv("WEBHOOK_PORT"))
 	} else {
 		bot = tbot.New(os.Getenv("TELEGRAM_TOKEN"))
-		fmt.Println("Starting the bot with the updates method")
+		log.Println("Starting the bot with the updates method")
 	}
 	c := bot.Client()
 
@@ -203,18 +214,28 @@ KLAX JFK LHR or KLAX,JFK,LHR`)
 					if success {
 						// Get NOAA data
 						var wg sync.WaitGroup
-						tafCh := make(chan string, 1)
-						metarCh := make(chan string, 1)
+						tafCh := make(chan outputData, 1)
+						metarCh := make(chan outputData, 1)
 
 						wg.Add(2)
-						go GetTafNOAA(arpt.ICAO, tafCh, NOAAinterval, &wg)
-						go GetMetarNOAA(arpt.ICAO, metarCh, NOAAinterval, &wg)
+						go env.getData("tafs", arpt.ICAO, tafCh, &wg)
+						go env.getData("metars", arpt.ICAO, metarCh, &wg)
 
 						wg.Wait()
 						taf := <-tafCh
 						metar := <-metarCh
 
-						message := fmt.Sprintf("<b>%s/%s\nMETAR</b>\n<code>%s</code>\n<b>TAF</b>\n<code>%s</code>", strings.ToUpper(arpt.ICAO), strings.ToUpper(arpt.IATA), metar, taf)
+						metarString, err := ParseMetarNOAA(metar.data)
+						if err != nil {
+							log.Printf("error decoding metar: %v", err)
+						}
+
+						tafString, err := ParseTafNOAA(taf.data)
+						if err != nil {
+							log.Printf("error decoding taf: %v", err)
+						}
+
+						message := fmt.Sprintf("<b>%s/%s\nMETAR</b>\n<code>%s</code>\n<b>TAF</b>\n<code>%s</code>", strings.ToUpper(arpt.ICAO), strings.ToUpper(arpt.IATA), metarString, tafString)
 						messages = append(messages, message)
 					}
 				}(airport, &wgMain)
@@ -225,7 +246,11 @@ KLAX JFK LHR or KLAX,JFK,LHR`)
 			// Send messages once we have all data
 			for _, message := range messages {
 				// we need HTML parse mode to enable <code>, which disables displaying numbers as URLs on mobile devices
-				c.SendMessage(m.Chat.ID, message, tbot.OptParseModeHTML)
+				_, err = c.SendMessage(m.Chat.ID, message, tbot.OptParseModeHTML)
+				if err != nil {
+					log.Printf("error sending message: %v\n", err)
+				}
+
 			}
 		} else {
 			c.SendMessage(m.Chat.ID,

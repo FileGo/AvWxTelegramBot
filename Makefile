@@ -1,7 +1,7 @@
 all: test build
 
 test:
-	go test ./...
+	go test -race -v ./...
 
 build:
 	go build -o bin/AvWxTelegramBot .

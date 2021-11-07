@@ -4,12 +4,15 @@ import (
 	"errors"
 	"io"
 	"os"
-	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGetAirportCodes(t *testing.T) {
+	assert := assert.New(t)
+
 	var tests = []struct {
 		input    string
 		expected []string
@@ -28,10 +31,7 @@ func TestGetAirportCodes(t *testing.T) {
 	for _, test := range tests {
 		output := GetAirportCodes(test.input)
 
-		if reflect.DeepEqual(output, test.expected) != true {
-			t.Errorf("Test failed: \"%s\" input, \"%s\" expected, \"%s\" output",
-				test.input, test.expected, output)
-		}
+		assert.Equal(test.expected, output)
 	}
 }
 
@@ -42,6 +42,8 @@ func (errReader) Read(p []byte) (n int, err error) {
 }
 
 func TestLoadAirports(t *testing.T) {
+	assert := assert.New(t)
+
 	tests := []struct {
 		r           io.Reader
 		errExpected bool
@@ -55,17 +57,18 @@ func TestLoadAirports(t *testing.T) {
 	for _, test := range tests {
 		env := Env{}
 		err := env.LoadAirports(test.r)
-		if test.errExpected && err == nil {
-			t.Errorf("input: %v, error expected, but not returned", test.r)
-		}
 
-		if !test.errExpected && err != nil {
-			t.Errorf("input: %v, unexpected error: %v", test.r, err)
+		if test.errExpected {
+			assert.NotNil(err)
+		} else {
+			assert.Nil(err)
 		}
 	}
 }
 
 func TestFindAirport(t *testing.T) {
+	assert := assert.New(t)
+
 	tests := []struct {
 		arpts       []Airport
 		code        string
@@ -94,62 +97,56 @@ func TestFindAirport(t *testing.T) {
 		env.Airports = test.arpts
 
 		out, err := env.FindAirport(test.code)
-		if test.errExpected && err == nil {
-			t.Errorf("arpts: %v, code: %v, error expected, but not returned", test.arpts, test.code)
-		}
 
-		if !test.errExpected && err != nil {
-			t.Errorf("arpts: %v, code: %v, unexpected error: %v", test.arpts, test.code, err)
+		if test.errExpected {
+			assert.NotNil(err)
+		} else {
+			if assert.Nil(err) {
+				assert.Equal(test.want, out)
+			}
 		}
-
-		if out != test.want {
-			t.Errorf("arpts: %v, code: %v, got: %v, want: %v", test.arpts, test.code, out, test.want)
-		}
-
 	}
 }
 
 func TestGetNOAAinterval(t *testing.T) {
-	// Test default
-	out, err := GetNOAAinterval()
-	if err != nil {
-		t.Errorf("default interval, error received: %v", err)
-	}
+	assert := assert.New(t)
+	env := &Env{}
 
-	if out != 12 {
-		t.Errorf("default interval not 12, got: %v", out)
-	}
+	t.Run("default", func(t *testing.T) {
+		// Test default
+		err := env.GetNOAAinterval()
+		if assert.Nil(err) {
+			assert.Equal(12, env.NOAAinterval)
+		}
+	})
 
-	// Set a positive number
-	tests := []struct {
-		input       string
-		want        int
-		errExpected bool
-	}{
-		{"15", 15, false},
-		{"-1", 0, true},
-		{"aaaaaaaaaaaaa", 0, true},
-	}
-
-	for _, test := range tests {
-		err = os.Setenv("NOAA_INTERVAL", test.input)
-		if err != nil {
-			t.Errorf("unable to set interval: %v", err)
+	t.Run("pass", func(t *testing.T) {
+		// Set a positive number
+		tests := []struct {
+			input       string
+			want        int
+			errExpected bool
+		}{
+			{"15", 15, false},
+			{"-1", 0, true},
+			{"aaaaaaaaaaaaa", 0, true},
 		}
 
-		out, err = GetNOAAinterval()
+		for _, test := range tests {
+			err := os.Setenv("NOAA_INTERVAL", test.input)
+			if err != nil {
+				t.Fatalf("unable to set interval: %v", err)
+			}
 
-		if test.errExpected && err == nil {
-			t.Errorf("input: %v, got: %v, error expected but not returned", test.input, out)
+			err = env.GetNOAAinterval()
+			if test.errExpected {
+				assert.NotNil(err)
+			} else {
+				if assert.Nil(err) {
+					assert.Equal(test.want, env.NOAAinterval)
+				}
+			}
 		}
-
-		if !test.errExpected && err != nil {
-			t.Errorf("input: %v, unexpected error: %v", test.input, err)
-		}
-
-		if out != test.want {
-			t.Errorf("input: %v, got: %v, wanted: %v", test.input, out, test.want)
-		}
-	}
+	})
 
 }
