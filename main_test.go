@@ -110,12 +110,13 @@ func TestFindAirport(t *testing.T) {
 
 func TestGetNOAAinterval(t *testing.T) {
 	assert := assert.New(t)
+	env := &Env{}
 
 	t.Run("default", func(t *testing.T) {
 		// Test default
-		out, err := GetNOAAinterval()
+		err := env.GetNOAAinterval()
 		if assert.Nil(err) {
-			assert.Equal(12, out)
+			assert.Equal(12, env.NOAAinterval)
 		}
 	})
 
@@ -137,13 +138,12 @@ func TestGetNOAAinterval(t *testing.T) {
 				t.Fatalf("unable to set interval: %v", err)
 			}
 
-			out, err := GetNOAAinterval()
-
+			err = env.GetNOAAinterval()
 			if test.errExpected {
 				assert.NotNil(err)
 			} else {
 				if assert.Nil(err) {
-					assert.Equal(test.want, out)
+					assert.Equal(test.want, env.NOAAinterval)
 				}
 			}
 		}

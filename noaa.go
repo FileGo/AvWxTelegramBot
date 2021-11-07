@@ -2,11 +2,22 @@ package main
 
 import (
 	"encoding/xml"
+	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
-	"net/http"
 	"sync"
 )
+
+const (
+	dataSourceMetar = "metars"
+	dataSourceTaf   = "tafs"
+)
+
+type outputData struct {
+	data []byte
+	err  error
+}
 
 // NOAAResponseMetar provides struct for XML unmarshalling of NOAA data
 type NOAAResponseMetar struct {
@@ -111,66 +122,64 @@ type NOAAResponseTaf struct {
 	} `xml:"data"`
 }
 
-// GetMetarNOAA retrieves raw text of latest METAR from NOAA
-func GetMetarNOAA(ICAO string, metar chan string, NOAAinterval int, wg *sync.WaitGroup) {
+func (env *Env) getData(dataSource string, ICAO string, data chan outputData, wg *sync.WaitGroup) {
+	var out outputData
 	defer wg.Done()
-	// Retrieve XML from NOAA
-	response, err := http.Get(fmt.Sprintf("https://aviationweather.gov/adds/dataserver_current/httpparam?dataSource=metars&requestType=retrieve&format=xml&stationString=%s&hoursBeforeNow=%d", ICAO, NOAAinterval))
 
+	url := fmt.Sprintf("https://aviationweather.gov/adds/dataserver_current/httpparam?dataSource=%s&requestType=retrieve&format=xml&stationString=%s&hoursBeforeNow=%d", dataSource, ICAO, env.NOAAinterval)
+	fmt.Println(url)
+
+	response, err := env.httpClient.Get(url)
 	if err != nil {
-		metar <- ""
+		out.err = err
+		data <- out
+		close(data)
 		return
 	}
 
-	data, err := ioutil.ReadAll(response.Body)
-
+	buf, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		metar <- ""
+		out.err = err
+		data <- out
+		close(data)
 		return
 	}
 
-	nresp := &NOAAResponseMetar{}
-
-	_ = xml.Unmarshal([]byte(data), &nresp)
-
-	// Check if any METARs are available
-	if len(nresp.Data.METAR) > 0 {
-		// Return the newest one
-		metar <- nresp.Data.METAR[0].RawText
-	} else {
-		metar <- "No recent METAR available"
-	}
-
-	close(metar)
+	out.data = buf
+	data <- out
+	close(data)
 }
 
-// GetTafNOAA retrieves raw text of latest METAR from NOAA
-func GetTafNOAA(ICAO string, taf chan string, NOAAinterval int, wg *sync.WaitGroup) {
-	defer wg.Done()
-	// Retrieve XML from NOAA
-	response, err := http.Get(fmt.Sprintf("https://aviationweather.gov/adds/dataserver_current/httpparam?dataSource=tafs&requestType=retrieve&format=xml&stationString=%s&hoursBeforeNow=%d", ICAO, NOAAinterval))
-
-	if err != nil {
-		panic(err)
+// ParseMetarNOAA retrieves raw text of latest METAR from NOAA
+func ParseMetarNOAA(input []byte) (string, error) {
+	var nresp NOAAResponseMetar
+	err := xml.Unmarshal([]byte(input), &nresp)
+	if err != nil && err != io.EOF {
+		return "", err
 	}
 
-	data, err := ioutil.ReadAll(response.Body)
-
-	if err != nil {
-		panic(err)
+	// Check if any METARs are available
+	if len(nresp.Data.METAR) <= 0 {
+		return "", errors.New("no METAR found")
 	}
 
-	nresp := &NOAAResponseTaf{}
+	// Return the newest one
+	return nresp.Data.METAR[0].RawText, nil
+}
 
-	_ = xml.Unmarshal([]byte(data), &nresp)
-
-	// Check if any TAFs are available
-	if len(nresp.Data.TAF) > 0 {
-		// Return the newest one
-		taf <- nresp.Data.TAF[0].RawText
-	} else {
-		taf <- "No recent TAF available"
+// ParseTafNOAA retrieves raw text of latest METAR from NOAA
+func ParseTafNOAA(input []byte) (string, error) {
+	var nresp NOAAResponseTaf
+	err := xml.Unmarshal([]byte(input), &nresp)
+	if err != nil && err != io.EOF {
+		return "", err
 	}
 
-	close(taf)
+	// Check if any METARs are available
+	if len(nresp.Data.TAF) <= 0 {
+		return "", errors.New("no TAF found")
+	}
+
+	// Return the newest one
+	return nresp.Data.TAF[0].RawText, nil
 }
