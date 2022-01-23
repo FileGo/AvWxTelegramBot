@@ -127,7 +127,6 @@ func (env *Env) getData(dataSource string, ICAO string, data chan outputData, wg
 	defer wg.Done()
 
 	url := fmt.Sprintf("https://aviationweather.gov/adds/dataserver_current/httpparam?dataSource=%s&requestType=retrieve&format=xml&stationString=%s&hoursBeforeNow=%d", dataSource, ICAO, env.NOAAinterval)
-	fmt.Println(url)
 
 	response, err := env.httpClient.Get(url)
 	if err != nil {

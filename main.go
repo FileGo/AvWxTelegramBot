@@ -186,6 +186,41 @@ KLAX JFK LHR or KLAX,JFK,LHR`)
 		}
 	})
 
+	getSWC := func(m *tbot.Message) {
+		resp, err := http.Get("https://www.aviationweather.gov/data/iffdp/2104.gif")
+		if err != nil {
+			log.Printf("error getting sigwx chart: %v", err)
+			c.SendMessage(m.Chat.ID, "Cannot retrieve SigWX chart.")
+			return
+		}
+		defer resp.Body.Close()
+
+		// Create temp file
+		f, err := os.CreateTemp(os.TempDir(), "avwxbot")
+		if err != nil {
+			log.Printf("error creating temp file: %v", err)
+			c.SendMessage(m.Chat.ID, "Cannot retrieve SigWX chart.")
+			return
+		}
+		defer os.Remove(f.Name())
+
+		// Write to temp file
+		_, err = io.Copy(f, resp.Body)
+		if err != nil {
+			log.Printf("error writing to temp file: %v", err)
+			c.SendMessage(m.Chat.ID, "Cannot retrieve SigWX chart.")
+			return
+		}
+
+		_, err = c.SendPhotoFile(m.Chat.ID, f.Name())
+		if err != nil {
+			log.Printf("error sending message: %v", err)
+		}
+	}
+
+	bot.HandleMessage("/swc", getSWC)
+	bot.HandleMessage("/sigwx", getSWC)
+
 	bot.HandleMessage(".*", func(m *tbot.Message) {
 		// Send "typing..." to client
 		c.SendChatAction(m.Chat.ID, tbot.ActionTyping)
