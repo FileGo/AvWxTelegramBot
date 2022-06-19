@@ -65,6 +65,7 @@ type Env struct {
 	Airports     []Airport
 	httpClient   *http.Client
 	NOAAinterval int
+	logRequests  bool
 }
 
 // FindAirport returns an airport
@@ -149,6 +150,11 @@ func main() {
 		log.Fatal("TELEGRAM_TOKEN not set. Unable to start the bot.")
 	}
 
+	// Logging
+	if os.Getenv("LOG_REQUESTS") != "" {
+		env.logRequests = true
+	}
+
 	// Set httpClient
 	env.httpClient = &http.Client{
 		Timeout: 10 * time.Second,
@@ -224,6 +230,10 @@ KLAX JFK LHR or KLAX,JFK,LHR`)
 	bot.HandleMessage(".*", func(m *tbot.Message) {
 		// Send "typing..." to client
 		c.SendChatAction(m.Chat.ID, tbot.ActionTyping)
+
+		if env.logRequests {
+			log.Printf("Received request from %s %s (%s): %s", m.From.FirstName, m.From.LastName, m.Chat.ID, m.Text)
+		}
 
 		var messages []string
 
