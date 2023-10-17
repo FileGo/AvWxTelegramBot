@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"sync"
 )
 
@@ -126,7 +125,7 @@ func (env *Env) getData(dataSource string, ICAO string, data chan outputData, wg
 	var out outputData
 	defer wg.Done()
 
-	url := fmt.Sprintf("https://aviationweather.gov/adds/dataserver_current/httpparam?dataSource=%s&requestType=retrieve&format=xml&stationString=%s&hoursBeforeNow=%d", dataSource, ICAO, env.NOAAinterval)
+	url := fmt.Sprintf("%s?dataSource=%s&requestType=retrieve&format=xml&stationString=%s&hoursBeforeNow=%d", urlPrefix, dataSource, ICAO, env.NOAAinterval)
 
 	response, err := env.httpClient.Get(url)
 	if err != nil {
@@ -136,7 +135,7 @@ func (env *Env) getData(dataSource string, ICAO string, data chan outputData, wg
 		return
 	}
 
-	buf, err := ioutil.ReadAll(response.Body)
+	buf, err := io.ReadAll(response.Body)
 	if err != nil {
 		out.err = err
 		data <- out

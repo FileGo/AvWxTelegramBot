@@ -19,6 +19,8 @@ import (
 
 const dbPath = "airports.json"
 
+const urlPrefix = "https://aviationweather.gov/cgi-bin/data/dataserver.php"
+
 // GetAirportCodes returns array of ICAO codes from a message string
 func GetAirportCodes(input string) (output []string) {
 	output = []string{}
