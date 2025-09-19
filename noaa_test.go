@@ -95,8 +95,8 @@ func TestParseDataNOAA(t *testing.T) {
 
 		metar, taf, err := ParseNOAAData(buf)
 		if assert.Nil(err) {
-			assert.Equal("KJFK", metar[:4])
-			assert.Equal("KJFK", taf[:4])
+			assert.Equal("METAR KJFK", metar[:10])
+			assert.Equal("TAF KJFK", taf[:8])
 		}
 	})
 
