@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -19,7 +18,7 @@ import (
 
 const dbPath = "airports.json"
 
-const urlPrefix = "https://aviationweather.gov/cgi-bin/data/dataserver.php"
+const urlPrefix = "https://aviationweather.gov"
 
 // GetAirportCodes returns array of ICAO codes from a message string
 func GetAirportCodes(input string) (output []string) {
@@ -93,7 +92,7 @@ func (env *Env) FindAirport(code string) (Airport, error) {
 
 // LoadAirports Loads the airports into memory
 func (env *Env) LoadAirports(r io.Reader) error {
-	buf, err := ioutil.ReadAll(r)
+	buf, err := io.ReadAll(r)
 	if err != nil {
 		return err
 	}
@@ -261,28 +260,20 @@ KLAX JFK LHR or KLAX,JFK,LHR`)
 					if success {
 						// Get NOAA data
 						var wg sync.WaitGroup
-						tafCh := make(chan outputData, 1)
-						metarCh := make(chan outputData, 1)
+						dataCh := make(chan outputData, 1)
 
-						wg.Add(2)
-						go env.getData("tafs", arpt.ICAO, tafCh, &wg)
-						go env.getData("metars", arpt.ICAO, metarCh, &wg)
+						wg.Add(1)
+						go env.getData(arpt.ICAO, dataCh, &wg)
 
 						wg.Wait()
-						taf := <-tafCh
-						metar := <-metarCh
+						data := <-dataCh
 
-						metarString, err := ParseMetarNOAA(metar.data)
+						metar, taf, err := ParseNOAAData(data.data)
 						if err != nil {
 							log.Printf("error decoding metar: %v", err)
 						}
 
-						tafString, err := ParseTafNOAA(taf.data)
-						if err != nil {
-							log.Printf("error decoding taf: %v", err)
-						}
-
-						message := fmt.Sprintf("<b>%s/%s\nMETAR</b>\n<code>%s</code>\n<b>TAF</b>\n<code>%s</code>", strings.ToUpper(arpt.ICAO), strings.ToUpper(arpt.IATA), metarString, tafString)
+						message := fmt.Sprintf("<b>%s/%s\nMETAR</b>\n<code>%s</code>\n<b>TAF</b>\n<code>%s</code>", strings.ToUpper(arpt.ICAO), strings.ToUpper(arpt.IATA), metar, taf)
 						messages = append(messages, message)
 					}
 				}(airport, &wgMain)

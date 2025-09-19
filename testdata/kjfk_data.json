@@ -1,0 +1,380 @@
+[
+  {
+    "icaoId": "KJFK",
+    "receiptTime": "2025-09-19T20:58:05.471Z",
+    "obsTime": 1758315060,
+    "reportTime": "2025-09-19T21:00:00.000Z",
+    "temp": 29.4,
+    "dewp": 12.8,
+    "wdir": 310,
+    "wspd": 12,
+    "wgst": 17,
+    "visib": "10+",
+    "altim": 1014.3,
+    "slp": 1014.2,
+    "qcField": 12,
+    "presTend": -0.3,
+    "metarType": "METAR",
+    "rawOb": "METAR KJFK 192051Z 31012G17KT 10SM FEW065 FEW250 29/13 A2995 RMK AO2 SLP142 T02940128 55003 $",
+    "lat": 40.6392,
+    "lon": -73.7639,
+    "elev": 3,
+    "name": "New York/JF Kennedy Intl, NY, US",
+    "cover": "FEW",
+    "clouds": [
+      {
+        "cover": "FEW",
+        "base": 6500
+      },
+      {
+        "cover": "FEW",
+        "base": 25000
+      }
+    ],
+    "fltCat": "VFR",
+    "rawTaf": "TAF KJFK 191948Z 1920/2024 32010KT P6SM FEW050 TEMPO 1920/1921 30011G18KT FM200000 36009KT P6SM SKC FM200900 04011KT P6SM SKC FM201700 10010KT P6SM FEW050"
+  },
+  {
+    "icaoId": "KJFK",
+    "receiptTime": "2025-09-19T19:58:11.212Z",
+    "obsTime": 1758311460,
+    "reportTime": "2025-09-19T20:00:00.000Z",
+    "temp": 29.4,
+    "dewp": 13.9,
+    "wdir": 300,
+    "wspd": 11,
+    "wgst": 17,
+    "visib": "10+",
+    "altim": 1014.3,
+    "slp": 1014.1,
+    "qcField": 12,
+    "metarType": "METAR",
+    "rawOb": "METAR KJFK 191951Z 30011G17KT 10SM FEW060 FEW250 29/14 A2995 RMK AO2 SLP141 T02940139 $",
+    "lat": 40.6392,
+    "lon": -73.7639,
+    "elev": 3,
+    "name": "New York/JF Kennedy Intl, NY, US",
+    "cover": "FEW",
+    "clouds": [
+      {
+        "cover": "FEW",
+        "base": 6000
+      },
+      {
+        "cover": "FEW",
+        "base": 25000
+      }
+    ],
+    "fltCat": "VFR",
+    "rawTaf": "TAF KJFK 191948Z 1920/2024 32010KT P6SM FEW050 TEMPO 1920/1921 30011G18KT FM200000 36009KT P6SM SKC FM200900 04011KT P6SM SKC FM201700 10010KT P6SM FEW050"
+  },
+  {
+    "icaoId": "KJFK",
+    "receiptTime": "2025-09-19T18:58:13.674Z",
+    "obsTime": 1758307860,
+    "reportTime": "2025-09-19T19:00:00.000Z",
+    "temp": 29.4,
+    "dewp": 13.3,
+    "wdir": 320,
+    "wspd": 11,
+    "visib": "",
+    "altim": 1014.3,
+    "slp": 1014.2,
+    "qcField": 12,
+    "metarType": "METAR",
+    "rawOb": "METAR KJFK 191851Z 32011KT FEW060 FEW250 29/13 A2995 RMK AO2 SLP142 T02940133 $",
+    "lat": 40.6392,
+    "lon": -73.7639,
+    "elev": 3,
+    "name": "New York/JF Kennedy Intl, NY, US",
+    "cover": "FEW",
+    "clouds": [
+      {
+        "cover": "FEW",
+        "base": 6000
+      },
+      {
+        "cover": "FEW",
+        "base": 25000
+      }
+    ],
+    "rawTaf": "TAF KJFK 191948Z 1920/2024 32010KT P6SM FEW050 TEMPO 1920/1921 30011G18KT FM200000 36009KT P6SM SKC FM200900 04011KT P6SM SKC FM201700 10010KT P6SM FEW050"
+  },
+  {
+    "icaoId": "KJFK",
+    "receiptTime": "2025-09-19T17:58:25.278Z",
+    "obsTime": 1758304260,
+    "reportTime": "2025-09-19T18:00:00.000Z",
+    "temp": 29.4,
+    "dewp": 12.8,
+    "wdir": 310,
+    "wspd": 14,
+    "wgst": 18,
+    "visib": "10+",
+    "altim": 1014.6,
+    "slp": 1014.5,
+    "qcField": 12,
+    "presTend": -0.9,
+    "maxT": 29.4,
+    "minT": 22.2,
+    "metarType": "METAR",
+    "rawOb": "METAR KJFK 191751Z 31014G18KT 10SM FEW050 SCT250 29/13 A2996 RMK AO2 SLP145 T02940128 10294 20222 58009 $",
+    "lat": 40.6392,
+    "lon": -73.7639,
+    "elev": 3,
+    "name": "New York/JF Kennedy Intl, NY, US",
+    "cover": "SCT",
+    "clouds": [
+      {
+        "cover": "FEW",
+        "base": 5000
+      },
+      {
+        "cover": "SCT",
+        "base": 25000
+      }
+    ],
+    "fltCat": "VFR",
+    "rawTaf": "TAF KJFK 191948Z 1920/2024 32010KT P6SM FEW050 TEMPO 1920/1921 30011G18KT FM200000 36009KT P6SM SKC FM200900 04011KT P6SM SKC FM201700 10010KT P6SM FEW050"
+  },
+  {
+    "icaoId": "KJFK",
+    "receiptTime": "2025-09-19T16:58:17.915Z",
+    "obsTime": 1758300660,
+    "reportTime": "2025-09-19T17:00:00.000Z",
+    "temp": 28.9,
+    "dewp": 13.9,
+    "wdir": 300,
+    "wspd": 12,
+    "wgst": 18,
+    "visib": "10+",
+    "altim": 1015,
+    "slp": 1014.8,
+    "qcField": 12,
+    "metarType": "METAR",
+    "rawOb": "METAR KJFK 191651Z 30012G18KT 280V350 10SM FEW050 SCT250 29/14 A2997 RMK AO2 SLP148 T02890139 $",
+    "lat": 40.6392,
+    "lon": -73.7639,
+    "elev": 3,
+    "name": "New York/JF Kennedy Intl, NY, US",
+    "cover": "SCT",
+    "clouds": [
+      {
+        "cover": "FEW",
+        "base": 5000
+      },
+      {
+        "cover": "SCT",
+        "base": 25000
+      }
+    ],
+    "fltCat": "VFR",
+    "rawTaf": "TAF KJFK 191948Z 1920/2024 32010KT P6SM FEW050 TEMPO 1920/1921 30011G18KT FM200000 36009KT P6SM SKC FM200900 04011KT P6SM SKC FM201700 10010KT P6SM FEW050"
+  },
+  {
+    "icaoId": "KJFK",
+    "receiptTime": "2025-09-19T15:58:11.440Z",
+    "obsTime": 1758297060,
+    "reportTime": "2025-09-19T16:00:00.000Z",
+    "temp": 27.8,
+    "dewp": 13.9,
+    "wdir": 330,
+    "wspd": 9,
+    "visib": "10+",
+    "altim": 1015.3,
+    "slp": 1015.3,
+    "qcField": 12,
+    "metarType": "METAR",
+    "rawOb": "METAR KJFK 191551Z 33009KT 10SM FEW050 SCT180 28/14 A2998 RMK AO2 SLP153 T02780139 $",
+    "lat": 40.6392,
+    "lon": -73.7639,
+    "elev": 3,
+    "name": "New York/JF Kennedy Intl, NY, US",
+    "cover": "SCT",
+    "clouds": [
+      {
+        "cover": "FEW",
+        "base": 5000
+      },
+      {
+        "cover": "SCT",
+        "base": 18000
+      }
+    ],
+    "fltCat": "VFR",
+    "rawTaf": "TAF KJFK 191948Z 1920/2024 32010KT P6SM FEW050 TEMPO 1920/1921 30011G18KT FM200000 36009KT P6SM SKC FM200900 04011KT P6SM SKC FM201700 10010KT P6SM FEW050"
+  },
+  {
+    "icaoId": "KJFK",
+    "receiptTime": "2025-09-19T14:58:19.831Z",
+    "obsTime": 1758293460,
+    "reportTime": "2025-09-19T15:00:00.000Z",
+    "temp": 26.7,
+    "dewp": 14.4,
+    "wdir": 300,
+    "wspd": 8,
+    "visib": "10+",
+    "altim": 1015.7,
+    "slp": 1015.4,
+    "qcField": 12,
+    "presTend": 0.2,
+    "metarType": "METAR",
+    "rawOb": "METAR KJFK 191451Z 30008KT 10SM FEW050 27/14 A2999 RMK AO2 SLP154 T02670144 52002 $",
+    "lat": 40.6392,
+    "lon": -73.7639,
+    "elev": 3,
+    "name": "New York/JF Kennedy Intl, NY, US",
+    "cover": "FEW",
+    "clouds": [
+      {
+        "cover": "FEW",
+        "base": 5000
+      }
+    ],
+    "fltCat": "VFR",
+    "rawTaf": "TAF KJFK 191948Z 1920/2024 32010KT P6SM FEW050 TEMPO 1920/1921 30011G18KT FM200000 36009KT P6SM SKC FM200900 04011KT P6SM SKC FM201700 10010KT P6SM FEW050"
+  },
+  {
+    "icaoId": "KJFK",
+    "receiptTime": "2025-09-19T13:58:18.927Z",
+    "obsTime": 1758289860,
+    "reportTime": "2025-09-19T14:00:00.000Z",
+    "temp": 25.6,
+    "dewp": 14.4,
+    "wdir": 310,
+    "wspd": 10,
+    "visib": "10+",
+    "altim": 1015.7,
+    "slp": 1015.4,
+    "qcField": 12,
+    "metarType": "METAR",
+    "rawOb": "METAR KJFK 191351Z 31010KT 10SM CLR 26/14 A2999 RMK AO2 SLP154 T02560144 $",
+    "lat": 40.6392,
+    "lon": -73.7639,
+    "elev": 3,
+    "name": "New York/JF Kennedy Intl, NY, US",
+    "cover": "CLR",
+    "clouds": [],
+    "fltCat": "VFR",
+    "rawTaf": "TAF KJFK 191948Z 1920/2024 32010KT P6SM FEW050 TEMPO 1920/1921 30011G18KT FM200000 36009KT P6SM SKC FM200900 04011KT P6SM SKC FM201700 10010KT P6SM FEW050"
+  },
+  {
+    "icaoId": "KJFK",
+    "receiptTime": "2025-09-19T12:58:04.962Z",
+    "obsTime": 1758286260,
+    "reportTime": "2025-09-19T13:00:00.000Z",
+    "temp": 23.9,
+    "dewp": 13.9,
+    "wdir": 330,
+    "wspd": 10,
+    "visib": "10+",
+    "altim": 1015.3,
+    "slp": 1015.3,
+    "qcField": 12,
+    "metarType": "METAR",
+    "rawOb": "METAR KJFK 191251Z 33010KT 10SM FEW250 24/14 A2998 RMK AO2 SLP153 T02390139 $",
+    "lat": 40.6392,
+    "lon": -73.7639,
+    "elev": 3,
+    "name": "New York/JF Kennedy Intl, NY, US",
+    "cover": "FEW",
+    "clouds": [
+      {
+        "cover": "FEW",
+        "base": 25000
+      }
+    ],
+    "fltCat": "VFR",
+    "rawTaf": "TAF KJFK 191948Z 1920/2024 32010KT P6SM FEW050 TEMPO 1920/1921 30011G18KT FM200000 36009KT P6SM SKC FM200900 04011KT P6SM SKC FM201700 10010KT P6SM FEW050"
+  },
+  {
+    "icaoId": "KJFK",
+    "receiptTime": "2025-09-19T12:02:11.075Z",
+    "obsTime": 1758282660,
+    "reportTime": "2025-09-19T12:00:00.000Z",
+    "temp": 22.2,
+    "dewp": 13.3,
+    "wdir": 320,
+    "wspd": 7,
+    "visib": "10+",
+    "altim": 1015.3,
+    "slp": 1015.2,
+    "qcField": 12,
+    "presTend": 1.6,
+    "maxT": 22.2,
+    "minT": 18.9,
+    "metarType": "METAR",
+    "rawOb": "METAR KJFK 191151Z 32007KT 10SM FEW250 22/13 A2998 RMK AO2 SLP152 T02220133 10222 20189 53016 $",
+    "lat": 40.6392,
+    "lon": -73.7639,
+    "elev": 3,
+    "name": "New York/JF Kennedy Intl, NY, US",
+    "cover": "FEW",
+    "clouds": [
+      {
+        "cover": "FEW",
+        "base": 25000
+      }
+    ],
+    "fltCat": "VFR",
+    "rawTaf": "TAF KJFK 191948Z 1920/2024 32010KT P6SM FEW050 TEMPO 1920/1921 30011G18KT FM200000 36009KT P6SM SKC FM200900 04011KT P6SM SKC FM201700 10010KT P6SM FEW050"
+  },
+  {
+    "icaoId": "KJFK",
+    "receiptTime": "2025-09-19T10:58:20.154Z",
+    "obsTime": 1758279060,
+    "reportTime": "2025-09-19T11:00:00.000Z",
+    "temp": 20.6,
+    "dewp": 13.3,
+    "wdir": 310,
+    "wspd": 7,
+    "visib": "10+",
+    "altim": 1015,
+    "slp": 1014.7,
+    "qcField": 12,
+    "metarType": "METAR",
+    "rawOb": "METAR KJFK 191051Z 31007KT 10SM FEW250 21/13 A2997 RMK AO2 SLP147 T02060133 $",
+    "lat": 40.6392,
+    "lon": -73.7639,
+    "elev": 3,
+    "name": "New York/JF Kennedy Intl, NY, US",
+    "cover": "FEW",
+    "clouds": [
+      {
+        "cover": "FEW",
+        "base": 25000
+      }
+    ],
+    "fltCat": "VFR",
+    "rawTaf": "TAF KJFK 191948Z 1920/2024 32010KT P6SM FEW050 TEMPO 1920/1921 30011G18KT FM200000 36009KT P6SM SKC FM200900 04011KT P6SM SKC FM201700 10010KT P6SM FEW050"
+  },
+  {
+    "icaoId": "KJFK",
+    "receiptTime": "2025-09-19T09:58:25.354Z",
+    "obsTime": 1758275460,
+    "reportTime": "2025-09-19T10:00:00.000Z",
+    "temp": 21.1,
+    "dewp": 12.8,
+    "wdir": 300,
+    "wspd": 8,
+    "visib": "10+",
+    "altim": 1014.3,
+    "slp": 1014.1,
+    "qcField": 12,
+    "metarType": "METAR",
+    "rawOb": "METAR KJFK 190951Z 30008KT 10SM FEW250 21/13 A2995 RMK AO2 SLP141 T02110128 $",
+    "lat": 40.6392,
+    "lon": -73.7639,
+    "elev": 3,
+    "name": "New York/JF Kennedy Intl, NY, US",
+    "cover": "FEW",
+    "clouds": [
+      {
+        "cover": "FEW",
+        "base": 25000
+      }
+    ],
+    "fltCat": "VFR",
+    "rawTaf": "TAF KJFK 191948Z 1920/2024 32010KT P6SM FEW050 TEMPO 1920/1921 30011G18KT FM200000 36009KT P6SM SKC FM200900 04011KT P6SM SKC FM201700 10010KT P6SM FEW050"
+  }
+]

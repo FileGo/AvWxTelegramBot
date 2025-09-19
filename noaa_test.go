@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/tls"
 	"io"
-	"io/ioutil"
 	"net"
 	"net/http"
 	"net/http/httptest"
@@ -42,7 +41,7 @@ func TestGetData(t *testing.T) {
 
 	t.Run("pass", func(t *testing.T) {
 		h := http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
-			f, err := os.Open("./testdata/kjfk_metar.xml")
+			f, err := os.Open("./testdata/kjfk_data.json")
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -57,7 +56,7 @@ func TestGetData(t *testing.T) {
 		data := make(chan outputData, 1)
 
 		wg.Add(1)
-		go env.getData(dataSourceMetar, "KJFK", data, &wg)
+		go env.getData("KJFK", data, &wg)
 		wg.Wait()
 
 		out := <-data
@@ -75,7 +74,7 @@ func TestGetData(t *testing.T) {
 		data := make(chan outputData, 1)
 
 		wg.Add(1)
-		go env.getData(dataSourceMetar, "KJFK", data, &wg)
+		go env.getData("KJFK", data, &wg)
 		wg.Wait()
 
 		out := <-data
@@ -85,82 +84,31 @@ func TestGetData(t *testing.T) {
 	})
 }
 
-func TestGetMetarNOAA(t *testing.T) {
+func TestParseDataNOAA(t *testing.T) {
 	assert := assert.New(t)
 
 	t.Run("pass", func(t *testing.T) {
-		buf, err := ioutil.ReadFile("./testdata/kjfk_metar.xml")
+		buf, err := os.ReadFile("./testdata/kjfk_data.json")
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		out, err := ParseMetarNOAA(buf)
+		metar, taf, err := ParseNOAAData(buf)
 		if assert.Nil(err) {
-			assert.Equal("KJFK", out[:4])
+			assert.Equal("KJFK", metar[:4])
+			assert.Equal("KJFK", taf[:4])
 		}
 	})
 
-	t.Run("no_metar", func(t *testing.T) {
-		buf, err := ioutil.ReadFile("./testdata/no_metar.xml")
+	t.Run("json_fail", func(t *testing.T) {
+		buf, err := os.ReadFile("./testdata/fail.json")
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		_, err = ParseMetarNOAA(buf)
+		_, _, err = ParseNOAAData(buf)
 		if assert.NotNil(err) {
-			assert.Contains(err.Error(), "no METAR")
-		}
-	})
-
-	t.Run("xml_fail", func(t *testing.T) {
-		buf, err := ioutil.ReadFile("./testdata/fail.xml")
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		_, err = ParseMetarNOAA(buf)
-		if assert.NotNil(err) {
-			assert.Contains(err.Error(), "XML syntax")
-		}
-	})
-}
-
-func TestGetTafNOAA(t *testing.T) {
-	assert := assert.New(t)
-
-	t.Run("pass", func(t *testing.T) {
-		buf, err := ioutil.ReadFile("./testdata/kjfk_taf.xml")
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		out, err := ParseTafNOAA(buf)
-		if assert.Nil(err) {
-			assert.Equal("KJFK", out[:4])
-		}
-	})
-
-	t.Run("no_taf", func(t *testing.T) {
-		buf, err := ioutil.ReadFile("./testdata/no_taf.xml")
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		_, err = ParseTafNOAA(buf)
-		if assert.NotNil(err) {
-			assert.Contains(err.Error(), "no TAF")
-		}
-	})
-
-	t.Run("xml_fail", func(t *testing.T) {
-		buf, err := ioutil.ReadFile("./testdata/fail.xml")
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		_, err = ParseTafNOAA(buf)
-		if assert.NotNil(err) {
-			assert.Contains(err.Error(), "XML syntax")
+			assert.Contains(err.Error(), "json")
 		}
 	})
 }
