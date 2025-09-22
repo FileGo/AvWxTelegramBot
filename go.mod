@@ -3,7 +3,7 @@ module github.com/FileGo/AvWxTelegramBot
 go 1.25
 
 require (
-	github.com/stretchr/testify v1.8.4
+	github.com/stretchr/testify v1.11.1
 	github.com/yanzay/tbot/v2 v2.2.0
 )
 
