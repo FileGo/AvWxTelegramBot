@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net/http"
 	"sync"
 )
 
@@ -22,11 +23,22 @@ func (env *Env) getData(ICAO string, data chan outputData, wg *sync.WaitGroup) {
 	var out outputData
 	defer wg.Done()
 
-	url := fmt.Sprintf("%s/api/data/metar?ids=%s&format=json&taf=true&hours=1.51%d", urlPrefix, ICAO, env.NOAAinterval)
+	url := fmt.Sprintf("%s/api/data/metar?ids=%s&format=json&taf=true&hours=%d", urlPrefix, ICAO, env.NOAAinterval)
 
-	response, err := env.httpClient.Get(url)
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		out.err = err
+		out.err = fmt.Errorf("unable to create a request: %v", err)
+		data <- out
+		close(data)
+		return
+	}
+
+	req.Header.Add("Accept", "application/json")
+	req.Header.Set("User-Agent", "avwxtelegrambot/1.0)")
+
+	response, err := env.httpClient.Do(req)
+	if err != nil {
+		out.err = fmt.Errorf("unable to make a request: %v", err)
 		data <- out
 		close(data)
 		return

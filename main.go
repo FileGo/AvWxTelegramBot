@@ -181,7 +181,7 @@ func main() {
 		case "help":
 			c.SendMessage(m.Chat.ID,
 				`This bot quickly retrieves METAR and TAF for multiple airports.
-To use it, simply type one or more IATA or ICAO airport codes seperated by either a space or a comma, e.g.
+To use it, simply type one or more IATA or ICAO airport codes separated by either a space or a comma, e.g.
 KLAX JFK LHR or KLAX,JFK,LHR`)
 		case "?":
 			c.SendMessage(m.Chat.ID,
