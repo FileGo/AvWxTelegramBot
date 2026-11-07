@@ -33,8 +33,8 @@ func (env *Env) getData(ICAO string, data chan outputData, wg *sync.WaitGroup) {
 		return
 	}
 
-	req.Header.Add("Accept", "application/json")
-	req.Header.Set("User-Agent", "avwxtelegrambot/1.0)")
+	req.Header.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0")
 
 	response, err := env.httpClient.Do(req)
 	if err != nil {

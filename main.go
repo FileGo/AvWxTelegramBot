@@ -152,7 +152,7 @@ func main() {
 	}
 
 	// Logging
-	if os.Getenv("LOG_REQUESTS") != "" {
+	if os.Getenv("LOG_REQUESTS") == "true" {
 		env.logRequests = true
 	}
 
